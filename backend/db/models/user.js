@@ -14,13 +14,40 @@ module.exports = sequelize.define('user', {
     type: DataTypes.INTEGER
   },
   username: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notNull: {
+        msg: 'User name cannot be null',
+      },
+      notEmpty: {
+        msg: 'User name cannot be null',
+      }
+    }
   },
   email: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notNull: {
+        msg: 'Email cannot be null',
+      },
+      notEmpty: {
+        msg: 'Email cannot be null',
+      }
+    }
   },
   password: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notNull: {
+        msg: 'Password cannot be null',
+      },
+      notEmpty: {
+        msg: 'Password cannot be null',
+      }
+    }
   },
   confirmPassword: {
     type: DataTypes.VIRTUAL,

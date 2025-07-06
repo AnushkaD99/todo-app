@@ -12,7 +12,7 @@ app.use(express.json());
 //all routes will be here
 app.use('/api/v1/auth', authRouter);
 
-app.use(catchAsync (async (req, res, next) => {
+app.use(catchAsync(async (req, res, next) => {
     throw new AppError(`Can't find ${req.originalUrl} on this server`, 404);
 }))
 
