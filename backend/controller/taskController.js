@@ -1,5 +1,6 @@
 const task = require("../db/models/task");
 const user = require("../db/models/user");
+const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
 const createTask = catchAsync(async (req, res, next) => {
@@ -30,6 +31,25 @@ const getTaskByUserId = catchAsync(async (req, res, next) => {
         status: 'success',
         data: result,
     })
-})
+});
 
-module.exports = {createTask, getTaskByUserId};
+const markAsDone = catchAsync(async (req, res, next) => {
+    const userId = req.user.id;
+    const taskId = req.params.id;
+
+    const result = await task.findOne({ where: { id: taskId, createdBy: userId } });
+
+    if(!result) {
+        return next(new AppError('Task not found', 404));
+    }
+
+    result.completed = true;
+    await result.save();
+
+    return res.json({
+        status: 'success',
+        message: 'Task marked as done'
+    });
+});
+
+module.exports = {createTask, getTaskByUserId, markAsDone};
