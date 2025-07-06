@@ -52,4 +52,22 @@ const markAsDone = catchAsync(async (req, res, next) => {
     });
 });
 
-module.exports = {createTask, getTaskByUserId, markAsDone};
+const deleteTask = catchAsync(async (req, res, next) => {
+    const userId = req.user.id;
+    const taskId = req.params.id;
+
+    const result = await task.findOne({ where: { id: taskId, createdBy: userId } });
+
+    if(!result) {
+        return next(new AppError('Task not found', 404));
+    }
+
+    await result.destroy();
+
+    return res.json({
+        status: 'success',
+        message: 'Task deleted'
+    });
+});
+
+module.exports = {createTask, getTaskByUserId, markAsDone, deleteTask};
