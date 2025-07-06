@@ -1,4 +1,5 @@
 const task = require("../db/models/task");
+const user = require("../db/models/user");
 const catchAsync = require("../utils/catchAsync");
 
 const createTask = catchAsync(async (req, res, next) => {
@@ -18,4 +19,17 @@ const createTask = catchAsync(async (req, res, next) => {
     });
 });
 
-module.exports = {createTask};
+const getTaskByUserId = catchAsync(async (req, res, next) => {
+    const userId = req.user.id;
+    const result = await task.findAll({
+        include: user,
+        where: {createdBy: userId},
+    });
+
+    return res.json({
+        status: 'success',
+        data: result,
+    })
+})
+
+module.exports = {createTask, getTaskByUserId};
