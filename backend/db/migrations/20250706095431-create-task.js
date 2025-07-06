@@ -16,7 +16,8 @@ module.exports = {
         type: Sequelize.TEXT
       },
       completed: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       createdBy: {
         type: Sequelize.INTEGER,

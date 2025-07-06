@@ -38,4 +38,9 @@ module.exports = sequelize.define('task', {
   deletedAt: {
     type: DataTypes.DATE
   },
+},
+{
+  paranoid: true,
+  freezeTableName: true,
+  modelName: 'task',
 })

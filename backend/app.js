@@ -1,6 +1,7 @@
 const express = require('express');
 require('dotenv').config();
 const authRouter = require('./route/authRoute');
+const taskRouter = require('./route/taskRoute');
 const catchAsync = require('./utils/catchAsync');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controller/errorController');
@@ -11,6 +12,7 @@ app.use(express.json());
 
 //all routes will be here
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/task', taskRouter);
 
 app.use(catchAsync(async (req, res, next) => {
     throw new AppError(`Can't find ${req.originalUrl} on this server`, 404);
