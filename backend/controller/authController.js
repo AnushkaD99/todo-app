@@ -1,6 +1,8 @@
 const user = require("../db/models/user");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const AppError = require("../utils/appError");
+const catchAsync = require("../utils/catchAsync");
 
 const generateToken = (payload) => {
     return jwt.sign(payload, process.env.JWT_SECRET, {
@@ -8,7 +10,7 @@ const generateToken = (payload) => {
     })
 }
 
-const signup = async (req, res, next) => {
+const signup = catchAsync(async (req, res, next) => {
     const body = req.body;
 
     const newUser = await user.create({
@@ -17,6 +19,10 @@ const signup = async (req, res, next) => {
         password: body.password,
         confirmPassword: body.confirmPassword,
     });
+
+    if (!newUser) {
+        return next(new AppError('Failed to create user', 400));
+    };
 
     const result = newUser.toJSON();
 
@@ -27,47 +33,34 @@ const signup = async (req, res, next) => {
         id: result.id
     });
 
-    if (!result) {
-        return res.status(400).json({
-            status: 'fail',
-            message: 'Failed to create user'
-        });
-    }
-
     return res.status(201).json({
         status: 'success',
         message: 'Successfully user created',
         data: result,
     });
-};
+});
 
-const login = async (req, res, next) => {
+const login = (async (req, res, next) => {
     const {email, password} = req.body;
 
     if(!email || !password) {
-        res.status(400).json({
-            status: 'fail',
-            message: 'Please provide email and password',
-        });
+        return next(new AppError('Please provide email and password', 400));
     }
 
     const result = await user.findOne({where: {email}});
     if(!result || !(await bcrypt.compare(password, result.password))) {
-        return res.status(401).json({
-            status: 'fail',
-            message: 'Incorrect email or password',
-        });
+        return next(new AppError('Incorrect email or password', 401));
     }
 
     const token = generateToken({
         id: result.id
-    })
+    });
 
     return res.json({
         status: 'Success',
         token,
-    })
-}
+    });
+});
 
 module.exports = {
     signup,
