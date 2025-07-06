@@ -39,7 +39,7 @@ const Signup = ({
         setLoading(true);
         setError(null);
         try {
-            const res = await axios.post(
+            await axios.post(
                 "http://localhost:5000/api/v1/auth/signup",
                 form
             );

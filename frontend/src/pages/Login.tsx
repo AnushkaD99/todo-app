@@ -1,3 +1,7 @@
+import { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -16,6 +20,33 @@ const Login = ({
     signupText = "Don't have an account?",
     signupUrl = "./signup",
 }: LoginProps) => {
+    const [form, setForm] = useState({ email: "", password: "" });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await axios.post("http://localhost:5000/api/v1/auth/login", form);
+            toast.success("Login successful!");
+            localStorage.setItem("token", res.data.token);
+            navigate("/");
+        } catch (err: any) {
+            const msg = err.response?.data?.message || "Login failed";
+            setError(msg);
+            toast.error(msg);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <section className="h-full bg-muted">
             <div className="flex h-full items-center justify-center">
@@ -24,29 +55,35 @@ const Login = ({
                         {/* Logo */}
                         {heading && <h1 className="text-2xl font-semibold">{heading}</h1>}
                     </div>
-                    <div className="flex w-full flex-col gap-8">
+                    <form className="flex w-full flex-col gap-8" onSubmit={handleSubmit}>
                         <div className="flex flex-col gap-4">
                             <div className="flex flex-col gap-2">
                                 <Input
                                     type="email"
+                                    name="email"
                                     placeholder="Email"
                                     required
                                     className="bg-white"
+                                    value={form.email}
+                                    onChange={handleChange}
                                 />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <Input
                                     type="password"
+                                    name="password"
                                     placeholder="Password"
                                     required
                                     className="bg-white"
+                                    value={form.password}
+                                    onChange={handleChange}
                                 />
                             </div>
                             <div className="flex flex-col gap-4">
-                                <Button type="submit" className="mt-2 w-full">
-                                    {buttonText}
+                                <Button type="submit" className="mt-2 w-full" disabled={loading}>
+                                    {loading ? "Logging in..." : buttonText}
                                 </Button>
-                                <Button variant="outline" className="w-full">
+                                <Button variant="outline" className="w-full" type="button">
                                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                                         <path fill="#4285F4"
                                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -60,8 +97,9 @@ const Login = ({
                                     {googleText}
                                 </Button>
                             </div>
+                            {error && <div className="text-red-500 text-sm">{error}</div>}
                         </div>
-                    </div>
+                    </form>
                     <div className="flex justify-center gap-1 text-sm text-muted-foreground">
                         <p>{signupText}</p>
                         <a
